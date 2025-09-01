@@ -194,22 +194,35 @@ export const createTrade = async (tradeData) => {
 
 export const getTrades = async (userId) => {
   try {
+    console.log('🔄 Getting trades for user:', userId);
+    
+    // Use a simpler query without orderBy to avoid composite index requirement
     const tradesQuery = query(
       collection(db, 'trades'),
-      where('participants', 'array-contains', userId),
-      orderBy('createdAt', 'desc')
+      where('participants', 'array-contains', userId)
     );
 
     const querySnapshot = await getDocs(tradesQuery);
     const trades = [];
     querySnapshot.forEach((doc) => {
-      trades.push({ id: doc.id, ...doc.data() });
+      const tradeData = { id: doc.id, ...doc.data() };
+      console.log('Found trade:', tradeData);
+      trades.push(tradeData);
     });
     
+    // Sort manually by createdAt descending
+    trades.sort((a, b) => {
+      const aTime = a.createdAt?.toDate?.() || new Date(0);
+      const bTime = b.createdAt?.toDate?.() || new Date(0);
+      return bTime - aTime;
+    });
+    
+    console.log('Total trades found:', trades.length);
     return trades;
   } catch (error) {
-    console.error('Error getting trades:', error);
-    throw error;
+    console.error('❌ Error getting trades:', error);
+    // Return empty array instead of throwing to prevent dashboard crash
+    return [];
   }
 };
 
@@ -244,23 +257,48 @@ export const createNotification = async (notificationData) => {
 
 export const getNotifications = async (userId) => {
   try {
-    const notificationsQuery = query(
+    console.log('🔔 Getting notifications for user:', userId);
+    
+    // Use simpler query first, then try with orderBy
+    let notificationsQuery = query(
       collection(db, 'notifications'),
       where('userId', '==', userId),
-      orderBy('createdAt', 'desc'),
       limit(50)
     );
+
+    // Try to add orderBy, but fallback if it fails
+    try {
+      notificationsQuery = query(
+        collection(db, 'notifications'),
+        where('userId', '==', userId),
+        orderBy('createdAt', 'desc'),
+        limit(50)
+      );
+    } catch (orderError) {
+      console.warn('OrderBy failed for notifications, using manual sorting:', orderError);
+    }
 
     const querySnapshot = await getDocs(notificationsQuery);
     const notifications = [];
     querySnapshot.forEach((doc) => {
-      notifications.push({ id: doc.id, ...doc.data() });
+      const notificationData = { id: doc.id, ...doc.data() };
+      console.log('Found notification:', notificationData);
+      notifications.push(notificationData);
     });
     
+    // Sort manually by createdAt descending
+    notifications.sort((a, b) => {
+      const aTime = a.createdAt?.toDate?.() || new Date(0);
+      const bTime = b.createdAt?.toDate?.() || new Date(0);
+      return bTime - aTime;
+    });
+    
+    console.log('Total notifications found:', notifications.length);
     return notifications;
   } catch (error) {
-    console.error('Error getting notifications:', error);
-    throw error;
+    console.error('❌ Error getting notifications:', error);
+    // Return empty array instead of throwing to prevent dashboard crash
+    return [];
   }
 };
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getItemById } from '../services/firebaseService';
+import firebaseService from '../services/firebaseService';
 
 const ItemDetails = () => {
   const { id } = useParams();
@@ -21,7 +21,7 @@ const ItemDetails = () => {
     try {
       setLoading(true);
       setError('');
-      const itemData = await getItemById(id);
+      const itemData = await firebaseService.getItemById(id);
       if (itemData) {
         setItem(itemData);
       } else {
@@ -43,18 +43,62 @@ const ItemDetails = () => {
     setShowTradeModal(true);
   };
 
-  const submitTradeRequest = () => {
-    // Simulate sending trade request
-    console.log('Trade request sent:', {
-      itemId: item.id,
-      fromUser: currentUser.uid,
-      toUser: item.userId,
-      message: tradeMessage
-    });
-    
-    setShowTradeModal(false);
-    setTradeMessage('');
-    alert('Trade request sent successfully!');
+  const submitTradeRequest = async () => {
+    try {
+      console.log('Sending trade request:', {
+        itemId: item.id,
+        fromUser: currentUser.uid,
+        toUser: item.userId,
+        message: tradeMessage
+      });
+
+      // Create the trade request
+      const tradeData = {
+        itemId: item.id,
+        requesterUserId: currentUser.uid,
+        ownerUserId: item.userId,
+        message: tradeMessage,
+        status: 'pending',
+        participants: [currentUser.uid, item.userId],
+        itemDetails: {
+          title: item.title,
+          imageUrl: item.imageUrl,
+          value: item.value
+        },
+        requesterDetails: {
+          email: currentUser.email,
+          displayName: currentUser.displayName || currentUser.email?.split('@')[0]
+        }
+      };
+
+      // Create the trade
+      const tradeRef = await firebaseService.createTrade(tradeData);
+      console.log('Trade created with ID:', tradeRef.id);
+
+      // Create notification for the item owner
+      await firebaseService.createTradeNotification(
+        item.userId, // Send notification to item owner
+        'trade_request',
+        {
+          itemTitle: item.title,
+          tradeId: tradeRef.id,
+          itemId: item.id,
+          fromUserId: currentUser.uid,
+          fromUserName: currentUser.displayName || currentUser.email?.split('@')[0],
+          message: tradeMessage
+        }
+      );
+
+      console.log('✅ Trade request and notification created successfully');
+      
+      setShowTradeModal(false);
+      setTradeMessage('');
+      alert('Trade request sent successfully! The owner will be notified.');
+      
+    } catch (error) {
+      console.error('❌ Error sending trade request:', error);
+      alert('Error sending trade request. Please try again.');
+    }
   };
 
   if (loading) {

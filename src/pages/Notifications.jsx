@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { getNotifications, updateNotification, deleteNotification as deleteNotificationFromDb } from '../services/firebaseService';
+import firebaseService from '../services/firebaseService';
 
 const Notifications = () => {
   const { currentUser } = useAuth();
@@ -19,10 +19,12 @@ const Notifications = () => {
     try {
       setLoading(true);
       setError('');
-      const userNotifications = await getNotifications(currentUser.uid);
+      console.log('🔔 Loading notifications for user:', currentUser.uid);
+      const userNotifications = await firebaseService.getNotifications(currentUser.uid);
+      console.log('📱 Notifications loaded:', userNotifications);
       setNotifications(userNotifications);
     } catch (error) {
-      console.error('Error loading notifications:', error);
+      console.error('❌ Error loading notifications:', error);
       setError('Failed to load notifications. Please try again.');
     } finally {
       setLoading(false);
@@ -69,7 +71,7 @@ const Notifications = () => {
 
   const markAsRead = async (notificationId) => {
     try {
-      await updateNotification(notificationId, { read: true });
+      await firebaseService.updateNotification(notificationId, { read: true });
       setNotifications(prev => 
         prev.map(notification => 
           notification.id === notificationId 
@@ -87,7 +89,7 @@ const Notifications = () => {
       const unreadNotifications = notifications.filter(n => !n.read);
       await Promise.all(
         unreadNotifications.map(notification => 
-          updateNotification(notification.id, { read: true })
+          firebaseService.updateNotification(notification.id, { read: true })
         )
       );
       setNotifications(prev => 
@@ -100,7 +102,7 @@ const Notifications = () => {
 
   const deleteNotification = async (notificationId) => {
     try {
-      await deleteNotificationFromDb(notificationId);
+      await firebaseService.deleteNotification(notificationId);
       setNotifications(prev => 
         prev.filter(notification => notification.id !== notificationId)
       );

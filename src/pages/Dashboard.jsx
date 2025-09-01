@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import firebaseService from '../services/firebaseService';
+import createSampleNotifications from '../utils/createSampleNotifications';
+import testCreateNotification from '../utils/testCreateNotification';
 
 const Dashboard = () => {
   const { currentUser } = useAuth();
@@ -22,12 +24,45 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [debugInfo, setDebugInfo] = useState('');
+  const [creatingNotifications, setCreatingNotifications] = useState(false);
+  const [testingNotification, setTestingNotification] = useState(false);
 
   useEffect(() => {
     if (currentUser) {
       loadDashboardData();
     }
   }, [currentUser]);
+
+  const handleTestNotification = async () => {
+    try {
+      setTestingNotification(true);
+      console.log('🧪 Creating single test notification...');
+      const result = await testCreateNotification(currentUser.uid);
+      alert(`Test notification created! ID: ${result.id}`);
+      // Reload dashboard data to show new notification
+      await loadDashboardData();
+    } catch (error) {
+      console.error('Error creating test notification:', error);
+      alert('Error creating test notification. Check console for details.');
+    } finally {
+      setTestingNotification(false);
+    }
+  };
+
+  const handleCreateSampleNotifications = async () => {
+    try {
+      setCreatingNotifications(true);
+      const count = await createSampleNotifications(currentUser.uid);
+      alert(`Created ${count} sample notifications! Refresh to see them.`);
+      // Reload dashboard data to show new notifications
+      await loadDashboardData();
+    } catch (error) {
+      console.error('Error creating sample notifications:', error);
+      alert('Error creating sample notifications. Check console for details.');
+    } finally {
+      setCreatingNotifications(false);
+    }
+  };
 
   const loadDashboardData = async () => {
     try {
@@ -179,7 +214,24 @@ const Dashboard = () => {
             <p>Email: {currentUser.email}</p>
             <p>Status: {debugInfo}</p>
             <p>Items Found: {stats.myItems}</p>
+            <p>Notifications Found: {stats.notifications}</p>
             <p>💡 Open browser console (F12) for detailed logs</p>
+            <div className="mt-3 space-x-2">
+              <button
+                onClick={handleTestNotification}
+                disabled={testingNotification}
+                className="px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 disabled:opacity-50"
+              >
+                {testingNotification ? 'Creating...' : 'Test Single Notification'}
+              </button>
+              <button
+                onClick={handleCreateSampleNotifications}
+                disabled={creatingNotifications}
+                className="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 disabled:opacity-50"
+              >
+                {creatingNotifications ? 'Creating...' : 'Create Sample Notifications'}
+              </button>
+            </div>
           </div>
         </div>
 

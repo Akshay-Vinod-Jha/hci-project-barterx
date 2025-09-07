@@ -48,10 +48,19 @@ const Navbar = () => {
           {/* Logo/Brand */}
           <div className="flex items-center">
             <Link to="/dashboard" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">BX</span>
+              <div className="w-8 h-8 bg-gradient-to-r from-marketplace-primary to-marketplace-secondary rounded-lg flex items-center justify-center">
+                <img 
+                  src="https://cdn-icons-png.flaticon.com/512/3135/3135706.png" 
+                  alt="BarterX Logo" 
+                  className="w-6 h-6"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'block';
+                  }}
+                />
+                <span className="text-white font-bold text-sm hidden">BX</span>
               </div>
-              <span className="text-xl font-bold text-gray-900">BarterX</span>
+              <span className="text-xl font-bold text-marketplace-text-primary">BarterX</span>
             </Link>
           </div>
           

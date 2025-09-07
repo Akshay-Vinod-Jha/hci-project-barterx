@@ -115,7 +115,16 @@ const Login = () => {
             transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
             className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-lg rounded-2xl mb-4"
           >
-            <ArrowLeftRight className="text-white" size={32} />
+            <img 
+              src="https://cdn-icons-png.flaticon.com/512/3135/3135706.png" 
+              alt="BarterX Logo" 
+              className="w-8 h-8"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'block';
+              }}
+            />
+            <ArrowLeftRight className="text-white hidden" size={32} />
           </motion.div>
           <h1 className="text-3xl font-bold text-white mb-2">
             {showForgotPassword ? 'Reset Password' : 'Welcome to BarterX'}

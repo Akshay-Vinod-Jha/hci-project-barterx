@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
   ArrowLeft,
   Heart,
@@ -25,10 +25,10 @@ import {
   Bookmark,
   Send,
   X,
-  AlertCircle
-} from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import firebaseService from '../services/firebaseService';
+  AlertCircle,
+} from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import firebaseService from "../services/firebaseService";
 
 const ItemDetails = () => {
   const { id } = useParams();
@@ -36,9 +36,9 @@ const ItemDetails = () => {
   const { currentUser } = useAuth();
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [showTradeModal, setShowTradeModal] = useState(false);
-  const [tradeMessage, setTradeMessage] = useState('');
+  const [tradeMessage, setTradeMessage] = useState("");
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -50,16 +50,16 @@ const ItemDetails = () => {
   const loadItem = async () => {
     try {
       setLoading(true);
-      setError('');
+      setError("");
       const itemData = await firebaseService.getItemById(id);
       if (itemData) {
         setItem(itemData);
       } else {
-        setError('Item not found');
+        setError("Item not found");
       }
     } catch (error) {
-      console.error('Error loading item:', error);
-      setError('Failed to load item details. Please try again.');
+      console.error("Error loading item:", error);
+      setError("Failed to load item details. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -67,7 +67,7 @@ const ItemDetails = () => {
 
   const handleTradeRequest = () => {
     if (!currentUser) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
     setShowTradeModal(true);
@@ -75,17 +75,17 @@ const ItemDetails = () => {
 
   const submitTradeRequest = async () => {
     try {
-      console.log('🚀 Starting trade request process...');
-      console.log('Current user:', currentUser);
-      console.log('Item details:', item);
-      console.log('Trade message:', tradeMessage);
+      console.log("🚀 Starting trade request process...");
+      console.log("Current user:", currentUser);
+      console.log("Item details:", item);
+      console.log("Trade message:", tradeMessage);
 
       if (!item || !item.id) {
-        throw new Error('Item data is missing');
+        throw new Error("Item data is missing");
       }
 
       if (!currentUser || !currentUser.uid) {
-        throw new Error('User authentication is missing');
+        throw new Error("User authentication is missing");
       }
 
       if (currentUser.uid === item.userId) {
@@ -93,78 +93,83 @@ const ItemDetails = () => {
         return;
       }
 
-      console.log('✅ Initial validation passed');
+      console.log("✅ Initial validation passed");
 
       // Create the trade request
       const tradeData = {
         itemId: item.id,
         requesterUserId: currentUser.uid,
         ownerUserId: item.userId,
-        message: tradeMessage || 'No message provided',
-        status: 'pending',
+        message: tradeMessage || "No message provided",
+        status: "pending",
         participants: [currentUser.uid, item.userId],
         itemDetails: {
-          title: item.title || 'Unknown Item',
-          imageUrl: item.imageUrl || '',
-          value: item.value || 0
+          title: item.title || "Unknown Item",
+          imageUrl: item.imageUrl || "",
+          value: item.value || 0,
         },
         requesterDetails: {
-          email: currentUser.email || '',
-          displayName: currentUser.displayName || currentUser.email?.split('@')[0] || 'Unknown User'
-        }
+          email: currentUser.email || "",
+          displayName:
+            currentUser.displayName ||
+            currentUser.email?.split("@")[0] ||
+            "Unknown User",
+        },
       };
 
-      console.log('📦 Trade data prepared:', tradeData);
+      console.log("📦 Trade data prepared:", tradeData);
 
       // Create the trade
-      console.log('💾 Creating trade in Firestore...');
+      console.log("💾 Creating trade in Firestore...");
       const tradeRef = await firebaseService.createTrade(tradeData);
-      console.log('✅ Trade created successfully with ID:', tradeRef.id);
+      console.log("✅ Trade created successfully with ID:", tradeRef.id);
 
       // Create notification for the item owner
-      console.log('🔔 Creating notification for item owner...');
+      console.log("🔔 Creating notification for item owner...");
       const notificationData = {
-        itemTitle: item.title || 'Unknown Item',
+        itemTitle: item.title || "Unknown Item",
         tradeId: tradeRef.id,
         itemId: item.id,
         fromUserId: currentUser.uid,
-        fromUserName: currentUser.displayName || currentUser.email?.split('@')[0] || 'Unknown User',
-        message: tradeMessage || 'No message provided'
+        fromUserName:
+          currentUser.displayName ||
+          currentUser.email?.split("@")[0] ||
+          "Unknown User",
+        message: tradeMessage || "No message provided",
       };
-      
-      console.log('📝 Notification data:', notificationData);
-      
+
+      console.log("📝 Notification data:", notificationData);
+
       await firebaseService.createTradeNotification(
         item.userId, // Send notification to item owner
-        'trade_request',
+        "trade_request",
         notificationData
       );
 
-      console.log('✅ Notification created successfully');
-      console.log('🎉 Trade request process completed successfully');
-      
+      console.log("✅ Notification created successfully");
+      console.log("🎉 Trade request process completed successfully");
+
       setShowTradeModal(false);
-      setTradeMessage('');
-      alert('Trade request sent successfully! The owner will be notified.');
-      
+      setTradeMessage("");
+      alert("Trade request sent successfully! The owner will be notified.");
     } catch (error) {
-      console.error('❌ Detailed error in trade request:', error);
-      console.error('Error name:', error.name);
-      console.error('Error message:', error.message);
-      console.error('Error stack:', error.stack);
-      
-      let userMessage = 'Failed to send trade request. ';
-      
-      if (error.message.includes('permission')) {
-        userMessage += 'Permission denied. Please check your login status.';
-      } else if (error.message.includes('network')) {
-        userMessage += 'Network error. Please check your internet connection.';
-      } else if (error.message.includes('auth')) {
-        userMessage += 'Authentication error. Please log in again.';
+      console.error("❌ Detailed error in trade request:", error);
+      console.error("Error name:", error.name);
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+
+      let userMessage = "Failed to send trade request. ";
+
+      if (error.message.includes("permission")) {
+        userMessage += "Permission denied. Please check your login status.";
+      } else if (error.message.includes("network")) {
+        userMessage += "Network error. Please check your internet connection.";
+      } else if (error.message.includes("auth")) {
+        userMessage += "Authentication error. Please log in again.";
       } else {
         userMessage += `Error: ${error.message}`;
       }
-      
+
       alert(userMessage);
     }
   };
@@ -174,7 +179,9 @@ const ItemDetails = () => {
       <div className="min-h-screen bg-marketplace-bg-secondary dark:bg-marketplace-gray-800 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-4 border-marketplace-primary border-t-transparent mx-auto"></div>
-          <p className="mt-6 text-marketplace-text-secondary text-lg">Loading item details...</p>
+          <p className="mt-6 text-marketplace-text-secondary text-lg">
+            Loading item details...
+          </p>
         </div>
       </div>
     );
@@ -186,7 +193,8 @@ const ItemDetails = () => {
         <div className="text-center max-w-md">
           <div className="bg-marketplace-error-light border border-marketplace-error text-marketplace-error px-6 py-4 rounded-marketplace-lg mb-6">
             <AlertCircle size={20} className="inline mr-2" />
-            <span className="font-semibold">Error:</span> {error || 'Item not found'}
+            <span className="font-semibold">Error:</span>{" "}
+            {error || "Item not found"}
           </div>
           <div className="space-x-4">
             <button
@@ -224,14 +232,14 @@ const ItemDetails = () => {
               <ArrowLeft size={20} className="mr-2" />
               Back to listings
             </button>
-            
+
             <div className="flex items-center space-x-3">
               <button
                 onClick={() => setIsSaved(!isSaved)}
                 className={`p-2 rounded-marketplace transition-colors ${
-                  isSaved 
-                    ? 'bg-marketplace-primary text-white' 
-                    : 'bg-marketplace-gray-100 dark:bg-marketplace-gray-800 text-marketplace-text-secondary hover:text-marketplace-primary'
+                  isSaved
+                    ? "bg-marketplace-primary text-white"
+                    : "bg-marketplace-gray-100 dark:bg-marketplace-gray-800 text-marketplace-text-secondary hover:text-marketplace-primary"
                 }`}
               >
                 <Bookmark size={18} />
@@ -256,14 +264,19 @@ const ItemDetails = () => {
               {/* Main Image */}
               <div className="relative">
                 <img
-                  src={item.images && item.images.length > 0 ? item.images[selectedImageIndex].url : 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800&h=600&fit=crop'}
+                  src={
+                    item.images && item.images.length > 0
+                      ? item.images[selectedImageIndex].url
+                      : "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800&h=600&fit=crop"
+                  }
                   alt={item.title}
                   className="w-full h-96 lg:h-[500px] object-cover"
                   onError={(e) => {
-                    e.target.src = 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800&h=600&fit=crop';
+                    e.target.src =
+                      "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800&h=600&fit=crop";
                   }}
                 />
-                
+
                 {/* Image Counter */}
                 <div className="absolute top-4 right-4 bg-black/50 backdrop-blur-sm text-white px-3 py-1 rounded-marketplace text-sm">
                   {selectedImageIndex + 1} / {item.images?.length || 1}
@@ -274,12 +287,15 @@ const ItemDetails = () => {
                   <button
                     onClick={() => setIsLiked(!isLiked)}
                     className={`w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-sm transition-colors ${
-                      isLiked 
-                        ? 'bg-marketplace-error text-white' 
-                        : 'bg-white/90 text-marketplace-gray-600 hover:text-marketplace-error'
+                      isLiked
+                        ? "bg-marketplace-error text-white"
+                        : "bg-white/90 text-marketplace-gray-600 hover:text-marketplace-error"
                     }`}
                   >
-                    <Heart size={18} className={isLiked ? 'fill-current' : ''} />
+                    <Heart
+                      size={18}
+                      className={isLiked ? "fill-current" : ""}
+                    />
                   </button>
                 </div>
               </div>
@@ -293,9 +309,9 @@ const ItemDetails = () => {
                         key={index}
                         onClick={() => setSelectedImageIndex(index)}
                         className={`flex-shrink-0 w-20 h-20 rounded-marketplace overflow-hidden border-2 transition-colors ${
-                          selectedImageIndex === index 
-                            ? 'border-marketplace-primary' 
-                            : 'border-marketplace-border-light hover:border-marketplace-border-medium'
+                          selectedImageIndex === index
+                            ? "border-marketplace-primary"
+                            : "border-marketplace-border-light hover:border-marketplace-border-medium"
                         }`}
                       >
                         <img
@@ -303,7 +319,8 @@ const ItemDetails = () => {
                           alt={`View ${index + 1}`}
                           className="w-full h-full object-cover"
                           onError={(e) => {
-                            e.target.src = 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=80&h=80&fit=crop';
+                            e.target.src =
+                              "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=80&h=80&fit=crop";
                           }}
                         />
                       </button>
@@ -353,18 +370,22 @@ const ItemDetails = () => {
                 <div className="flex items-center space-x-1">
                   <Calendar size={14} />
                   <span>
-                    {item.createdAt ? new Date(item.createdAt.toDate()).toLocaleDateString() : 'Recently posted'}
+                    {item.createdAt
+                      ? new Date(item.createdAt.toDate()).toLocaleDateString()
+                      : "Recently posted"}
                   </span>
                 </div>
                 <div className="flex items-center space-x-1">
                   <MapPin size={14} />
-                  <span>{item.location || 'Location not specified'}</span>
+                  <span>{item.location || "Location not specified"}</span>
                 </div>
               </div>
 
               {/* Description */}
               <div className="mb-6">
-                <h3 className="text-lg font-bold text-marketplace-text-primary mb-3">Description</h3>
+                <h3 className="text-lg font-bold text-marketplace-text-primary mb-3">
+                  Description
+                </h3>
                 <div className="prose prose-marketplace max-w-none">
                   <p className="text-marketplace-text-secondary leading-relaxed whitespace-pre-wrap">
                     {item.description}
@@ -375,23 +396,37 @@ const ItemDetails = () => {
               {/* Item Details Grid */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 <div className="bg-marketplace-gray-50 dark:bg-marketplace-gray-800 rounded-marketplace p-4">
-                  <div className="text-sm text-marketplace-text-secondary mb-1">Condition</div>
-                  <div className="font-semibold text-marketplace-text-primary">{item.condition}</div>
-                </div>
-                <div className="bg-marketplace-gray-50 dark:bg-marketplace-gray-800 rounded-marketplace p-4">
-                  <div className="text-sm text-marketplace-text-secondary mb-1">Category</div>
-                  <div className="font-semibold text-marketplace-text-primary">{item.category}</div>
-                </div>
-                <div className="bg-marketplace-gray-50 dark:bg-marketplace-gray-800 rounded-marketplace p-4">
-                  <div className="text-sm text-marketplace-text-secondary mb-1">Listed</div>
+                  <div className="text-sm text-marketplace-text-secondary mb-1">
+                    Condition
+                  </div>
                   <div className="font-semibold text-marketplace-text-primary">
-                    {item.createdAt ? new Date(item.createdAt.toDate()).toLocaleDateString() : 'Recently'}
+                    {item.condition}
                   </div>
                 </div>
                 <div className="bg-marketplace-gray-50 dark:bg-marketplace-gray-800 rounded-marketplace p-4">
-                  <div className="text-sm text-marketplace-text-secondary mb-1">Location</div>
+                  <div className="text-sm text-marketplace-text-secondary mb-1">
+                    Category
+                  </div>
+                  <div className="font-semibold text-marketplace-text-primary">
+                    {item.category}
+                  </div>
+                </div>
+                <div className="bg-marketplace-gray-50 dark:bg-marketplace-gray-800 rounded-marketplace p-4">
+                  <div className="text-sm text-marketplace-text-secondary mb-1">
+                    Listed
+                  </div>
+                  <div className="font-semibold text-marketplace-text-primary">
+                    {item.createdAt
+                      ? new Date(item.createdAt.toDate()).toLocaleDateString()
+                      : "Recently"}
+                  </div>
+                </div>
+                <div className="bg-marketplace-gray-50 dark:bg-marketplace-gray-800 rounded-marketplace p-4">
+                  <div className="text-sm text-marketplace-text-secondary mb-1">
+                    Location
+                  </div>
                   <div className="font-semibold text-marketplace-text-primary truncate">
-                    {item.location || 'Not specified'}
+                    {item.location || "Not specified"}
                   </div>
                 </div>
               </div>
@@ -400,7 +435,10 @@ const ItemDetails = () => {
               {item.interestedIn && (
                 <div className="border-t border-marketplace-border-light pt-6">
                   <h3 className="text-lg font-bold text-marketplace-text-primary mb-3 flex items-center">
-                    <Package size={20} className="mr-2 text-marketplace-secondary" />
+                    <Package
+                      size={20}
+                      className="mr-2 text-marketplace-secondary"
+                    />
                     What the seller wants in exchange
                   </h3>
                   <p className="text-marketplace-text-secondary bg-marketplace-gray-50 dark:bg-marketplace-gray-800 rounded-marketplace p-4">
@@ -419,24 +457,34 @@ const ItemDetails = () => {
                 <User size={20} className="mr-2 text-marketplace-primary" />
                 Seller Information
               </h3>
-              
+
               <div className="flex items-center space-x-4 mb-4">
                 <div className="w-12 h-12 bg-marketplace-primary rounded-full flex items-center justify-center">
                   <span className="text-white font-bold text-lg">
-                    {(item.userDisplayName || item.ownerName || 'U').charAt(0)}
+                    {(item.userDisplayName || item.ownerName || "U").charAt(0)}
                   </span>
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center space-x-2">
                     <h4 className="font-bold text-marketplace-text-primary">
-                      {item.userDisplayName || item.ownerName || 'Anonymous User'}
+                      {item.userDisplayName ||
+                        item.ownerName ||
+                        "Anonymous User"}
                     </h4>
-                    <CheckCircle size={16} className="text-marketplace-success" />
+                    <CheckCircle
+                      size={16}
+                      className="text-marketplace-success"
+                    />
                   </div>
                   <div className="flex items-center space-x-3 mt-1">
                     <div className="flex items-center space-x-1">
-                      <Star size={12} className="text-marketplace-secondary fill-current" />
-                      <span className="text-sm text-marketplace-text-secondary">4.8 (127 reviews)</span>
+                      <Star
+                        size={12}
+                        className="text-marketplace-secondary fill-current"
+                      />
+                      <span className="text-sm text-marketplace-text-secondary">
+                        4.8 (127 reviews)
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -444,16 +492,28 @@ const ItemDetails = () => {
 
               <div className="space-y-3 mb-6">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-marketplace-text-secondary">Response rate</span>
-                  <span className="font-semibold text-marketplace-success">98%</span>
+                  <span className="text-marketplace-text-secondary">
+                    Response rate
+                  </span>
+                  <span className="font-semibold text-marketplace-success">
+                    98%
+                  </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-marketplace-text-secondary">Response time</span>
-                  <span className="font-semibold text-marketplace-text-primary">Within 1 hour</span>
+                  <span className="text-marketplace-text-secondary">
+                    Response time
+                  </span>
+                  <span className="font-semibold text-marketplace-text-primary">
+                    Within 1 hour
+                  </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-marketplace-text-secondary">Member since</span>
-                  <span className="font-semibold text-marketplace-text-primary">2019</span>
+                  <span className="text-marketplace-text-secondary">
+                    Member since
+                  </span>
+                  <span className="font-semibold text-marketplace-text-primary">
+                    2019
+                  </span>
                 </div>
               </div>
 
@@ -476,7 +536,9 @@ const ItemDetails = () => {
                 <div className="bg-marketplace-secondary bg-opacity-20 border border-marketplace-secondary rounded-marketplace-lg p-4">
                   <div className="flex items-center space-x-2 text-marketplace-secondary">
                     <Shield size={16} />
-                    <span className="font-semibold text-sm">This is your item</span>
+                    <span className="font-semibold text-sm">
+                      This is your item
+                    </span>
                   </div>
                   <p className="text-sm text-marketplace-text-secondary mt-1">
                     You can edit or manage this listing from your items page.
@@ -493,19 +555,31 @@ const ItemDetails = () => {
               </h3>
               <div className="space-y-3 text-sm text-marketplace-text-secondary">
                 <div className="flex items-start space-x-2">
-                  <CheckCircle size={16} className="text-marketplace-success mt-0.5 flex-shrink-0" />
+                  <CheckCircle
+                    size={16}
+                    className="text-marketplace-success mt-0.5 flex-shrink-0"
+                  />
                   <span>Meet in a public, well-lit place</span>
                 </div>
                 <div className="flex items-start space-x-2">
-                  <CheckCircle size={16} className="text-marketplace-success mt-0.5 flex-shrink-0" />
+                  <CheckCircle
+                    size={16}
+                    className="text-marketplace-success mt-0.5 flex-shrink-0"
+                  />
                   <span>Inspect items before trading</span>
                 </div>
                 <div className="flex items-start space-x-2">
-                  <CheckCircle size={16} className="text-marketplace-success mt-0.5 flex-shrink-0" />
+                  <CheckCircle
+                    size={16}
+                    className="text-marketplace-success mt-0.5 flex-shrink-0"
+                  />
                   <span>Trust your instincts</span>
                 </div>
                 <div className="flex items-start space-x-2">
-                  <CheckCircle size={16} className="text-marketplace-success mt-0.5 flex-shrink-0" />
+                  <CheckCircle
+                    size={16}
+                    className="text-marketplace-success mt-0.5 flex-shrink-0"
+                  />
                   <span>Never share personal information</span>
                 </div>
               </div>
@@ -514,14 +588,22 @@ const ItemDetails = () => {
             {/* Related Items Preview */}
             <div className="bg-white dark:bg-marketplace-gray-900 rounded-marketplace-lg border border-marketplace-border-light shadow-marketplace p-6">
               <h3 className="text-lg font-bold text-marketplace-text-primary mb-4 flex items-center">
-                <TrendingUp size={20} className="mr-2 text-marketplace-primary" />
+                <TrendingUp
+                  size={20}
+                  className="mr-2 text-marketplace-primary"
+                />
                 Similar Items
               </h3>
               <div className="space-y-4">
                 {[1, 2, 3].map((index) => (
-                  <div key={index} className="flex items-center space-x-3 p-2 hover:bg-marketplace-gray-50 dark:hover:bg-marketplace-gray-800 rounded-marketplace cursor-pointer transition-colors">
+                  <div
+                    key={index}
+                    className="flex items-center space-x-3 p-2 hover:bg-marketplace-gray-50 dark:hover:bg-marketplace-gray-800 rounded-marketplace cursor-pointer transition-colors"
+                  >
                     <img
-                      src={`https://images.unsplash.com/photo-${1600000000 + index}000?w=60&h=60&fit=crop`}
+                      src={`https://images.unsplash.com/photo-${
+                        1600000000 + index
+                      }000?w=60&h=60&fit=crop`}
                       alt={`Similar item ${index}`}
                       className="w-12 h-12 rounded-marketplace object-cover"
                     />
@@ -530,7 +612,10 @@ const ItemDetails = () => {
                         Similar {item.category} Item
                       </p>
                       <p className="text-marketplace-primary font-bold text-sm">
-                        ₹{((item.value || 0) + Math.floor(Math.random() * 1000)).toLocaleString()}
+                        ₹
+                        {(
+                          (item.value || 0) + Math.floor(Math.random() * 1000)
+                        ).toLocaleString()}
                       </p>
                     </div>
                   </div>
@@ -561,11 +646,14 @@ const ItemDetails = () => {
                   <X size={20} className="text-marketplace-text-secondary" />
                 </button>
               </div>
-              
+
               <div className="mb-4">
                 <div className="flex items-center space-x-3 p-3 bg-marketplace-gray-50 dark:bg-marketplace-gray-800 rounded-marketplace">
                   <img
-                    src={item.images?.[0]?.url || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=60&h=60&fit=crop'}
+                    src={
+                      item.images?.[0]?.url ||
+                      "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=60&h=60&fit=crop"
+                    }
                     alt={item.title}
                     className="w-12 h-12 rounded-marketplace object-cover"
                   />
@@ -582,7 +670,7 @@ const ItemDetails = () => {
 
               <div className="mb-6">
                 <label className="block text-sm font-bold text-marketplace-text-primary mb-2">
-                  Message to {item.userDisplayName || 'seller'}
+                  Message to {item.userDisplayName || "seller"}
                 </label>
                 <textarea
                   value={tradeMessage}
@@ -592,7 +680,8 @@ const ItemDetails = () => {
                   placeholder="Hi! I'm interested in trading for this item. I have [describe your item] that might interest you. Let me know if you'd like to discuss!"
                 />
                 <p className="mt-2 text-xs text-marketplace-text-secondary">
-                  Be specific about what you're offering to increase your chances of a successful trade.
+                  Be specific about what you're offering to increase your
+                  chances of a successful trade.
                 </p>
               </div>
 

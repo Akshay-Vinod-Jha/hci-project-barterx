@@ -124,22 +124,20 @@ const Login = () => {
           >
             <div className="flex items-center space-x-4 mb-8">
               <div className="w-12 h-12 bg-accent-500 rounded-lg flex items-center justify-center shadow-trading-lg">
-                <img 
-                  src="https://cdn-icons-png.flaticon.com/512/3135/3135706.png" 
-                  alt="BarterX Logo" 
+                <img
+                  src="https://cdn-icons-png.flaticon.com/512/3135/3135706.png"
+                  alt="BarterX Logo"
                   className="w-8 h-8"
                   onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'block';
+                    e.target.style.display = "none";
+                    e.target.nextSibling.style.display = "block";
                   }}
                 />
                 <ArrowLeftRight className="text-white hidden" size={24} />
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-white">BarterX</h1>
-                <p className="text-primary-300">
-                  Trade & Exchange Platform
-                </p>
+                <p className="text-primary-300">Trade & Exchange Platform</p>
               </div>
             </div>
 
@@ -185,13 +183,13 @@ const Login = () => {
           <div className="lg:hidden flex items-center justify-center mb-8">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-accent-500 rounded-lg flex items-center justify-center shadow-trading">
-                <img 
-                  src="https://cdn-icons-png.flaticon.com/512/3135/3135706.png" 
-                  alt="BarterX Logo" 
+                <img
+                  src="https://cdn-icons-png.flaticon.com/512/3135/3135706.png"
+                  alt="BarterX Logo"
                   className="w-6 h-6"
                   onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'block';
+                    e.target.style.display = "none";
+                    e.target.nextSibling.style.display = "block";
                   }}
                 />
                 <ArrowLeftRight className="text-white hidden" size={20} />

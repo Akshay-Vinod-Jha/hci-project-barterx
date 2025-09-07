@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
   Camera,
   MapPin,
@@ -15,54 +15,70 @@ import {
   Star,
   Shield,
   ArrowRight,
-  Zap
-} from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import firebaseService from '../services/firebaseService';
-import ImageUpload from '../components/ImageUpload';
+  Zap,
+} from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import firebaseService from "../services/firebaseService";
+import ImageUpload from "../components/ImageUpload";
 
 const AddItem = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    category: '',
-    condition: '',
-    value: '',
-    location: '',
-    interestedIn: ''
+    title: "",
+    description: "",
+    category: "",
+    condition: "",
+    value: "",
+    location: "",
+    interestedIn: "",
   });
   const [images, setImages] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
   const categories = [
-    { value: 'Electronics', label: 'Electronics', icon: '📱' },
-    { value: 'Books', label: 'Books & Media', icon: '📚' },
-    { value: 'Clothing', label: 'Fashion & Clothing', icon: '👕' },
-    { value: 'Home & Garden', label: 'Home & Garden', icon: '🏠' },
-    { value: 'Sports & Recreation', label: 'Sports & Recreation', icon: '⚽' },
-    { value: 'Vehicles', label: 'Vehicles', icon: '🚗' },
-    { value: 'Collectibles', label: 'Collectibles & Art', icon: '🎨' },
-    { value: 'Music Instruments', label: 'Music Instruments', icon: '🎸' },
-    { value: 'Other', label: 'Other Items', icon: '📦' }
+    { value: "Electronics", label: "Electronics", icon: "📱" },
+    { value: "Books", label: "Books & Media", icon: "📚" },
+    { value: "Clothing", label: "Fashion & Clothing", icon: "👕" },
+    { value: "Home & Garden", label: "Home & Garden", icon: "🏠" },
+    { value: "Sports & Recreation", label: "Sports & Recreation", icon: "⚽" },
+    { value: "Vehicles", label: "Vehicles", icon: "🚗" },
+    { value: "Collectibles", label: "Collectibles & Art", icon: "🎨" },
+    { value: "Music Instruments", label: "Music Instruments", icon: "🎸" },
+    { value: "Other", label: "Other Items", icon: "📦" },
   ];
 
   const conditions = [
-    { value: 'New', label: 'Brand New', description: 'Never used, with original packaging' },
-    { value: 'Like New', label: 'Like New', description: 'Used once or twice, excellent condition' },
-    { value: 'Good', label: 'Good', description: 'Used but well maintained' },
-    { value: 'Fair', label: 'Fair', description: 'Shows wear but fully functional' },
-    { value: 'Poor', label: 'Poor', description: 'Heavily used, may need repairs' }
+    {
+      value: "New",
+      label: "Brand New",
+      description: "Never used, with original packaging",
+    },
+    {
+      value: "Like New",
+      label: "Like New",
+      description: "Used once or twice, excellent condition",
+    },
+    { value: "Good", label: "Good", description: "Used but well maintained" },
+    {
+      value: "Fair",
+      label: "Fair",
+      description: "Shows wear but fully functional",
+    },
+    {
+      value: "Poor",
+      label: "Poor",
+      description: "Heavily used, may need repairs",
+    },
   ];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -72,20 +88,25 @@ const AddItem = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!formData.title || !formData.description || !formData.category || !formData.condition) {
-      setError('Please fill in all required fields');
+
+    if (
+      !formData.title ||
+      !formData.description ||
+      !formData.category ||
+      !formData.condition
+    ) {
+      setError("Please fill in all required fields");
       return;
     }
 
     if (images.length === 0) {
-      setError('Please upload at least one image');
+      setError("Please upload at least one image");
       return;
     }
 
     setIsSubmitting(true);
-    setError('');
-    
+    setError("");
+
     try {
       const itemData = {
         ...formData,
@@ -93,34 +114,34 @@ const AddItem = () => {
         userId: currentUser.uid,
         userDisplayName: currentUser.displayName,
         userEmail: currentUser.email,
-        status: 'available'
+        status: "available",
       };
 
-      console.log('Creating item with data:', itemData);
-      console.log('Current user:', currentUser);
-      console.log('User ID being stored:', currentUser.uid);
+      console.log("Creating item with data:", itemData);
+      console.log("Current user:", currentUser);
+      console.log("User ID being stored:", currentUser.uid);
 
       await firebaseService.createItem(itemData);
-      
+
       setSuccess(true);
       setFormData({
-        title: '',
-        description: '',
-        category: '',
-        condition: '',
-        value: '',
-        location: '',
-        interestedIn: ''
+        title: "",
+        description: "",
+        category: "",
+        condition: "",
+        value: "",
+        location: "",
+        interestedIn: "",
       });
       setImages([]);
-      
+
       setTimeout(() => {
         setSuccess(false);
-        navigate('/my-items');
+        navigate("/my-items");
       }, 2000);
     } catch (error) {
-      console.error('Error submitting item:', error);
-      setError('Failed to create item. Please try again.');
+      console.error("Error submitting item:", error);
+      setError("Failed to create item. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -193,13 +214,17 @@ const AddItem = () => {
                 <div className="flex items-center mb-4">
                   <Camera className="text-marketplace-primary mr-3" size={24} />
                   <div>
-                    <h3 className="text-lg font-bold text-marketplace-text-primary">Add Photos</h3>
-                    <p className="text-sm text-marketplace-text-secondary">Upload up to 5 high-quality photos</p>
+                    <h3 className="text-lg font-bold text-marketplace-text-primary">
+                      Add Photos
+                    </h3>
+                    <p className="text-sm text-marketplace-text-secondary">
+                      Upload up to 5 high-quality photos
+                    </p>
                   </div>
                 </div>
                 <div className="bg-marketplace-gray-50 dark:bg-marketplace-gray-800 rounded-marketplace-lg border-2 border-dashed border-marketplace-border-medium p-6">
-                  <ImageUpload 
-                    images={images} 
+                  <ImageUpload
+                    images={images}
                     onImagesChange={handleImagesChange}
                     maxImages={5}
                   />
@@ -215,17 +240,27 @@ const AddItem = () => {
               {/* Item Details */}
               <div>
                 <div className="flex items-center mb-4">
-                  <FileText className="text-marketplace-primary mr-3" size={24} />
+                  <FileText
+                    className="text-marketplace-primary mr-3"
+                    size={24}
+                  />
                   <div>
-                    <h3 className="text-lg font-bold text-marketplace-text-primary">Item Details</h3>
-                    <p className="text-sm text-marketplace-text-secondary">Provide detailed information about your item</p>
+                    <h3 className="text-lg font-bold text-marketplace-text-primary">
+                      Item Details
+                    </h3>
+                    <p className="text-sm text-marketplace-text-secondary">
+                      Provide detailed information about your item
+                    </p>
                   </div>
                 </div>
-                
+
                 <div className="space-y-6">
                   {/* Title */}
                   <div>
-                    <label htmlFor="title" className="block text-sm font-bold text-marketplace-text-primary mb-2">
+                    <label
+                      htmlFor="title"
+                      className="block text-sm font-bold text-marketplace-text-primary mb-2"
+                    >
                       Ad Title *
                     </label>
                     <input
@@ -245,7 +280,10 @@ const AddItem = () => {
 
                   {/* Description */}
                   <div>
-                    <label htmlFor="description" className="block text-sm font-bold text-marketplace-text-primary mb-2">
+                    <label
+                      htmlFor="description"
+                      className="block text-sm font-bold text-marketplace-text-primary mb-2"
+                    >
                       Description *
                     </label>
                     <textarea
@@ -259,7 +297,8 @@ const AddItem = () => {
                       placeholder="Describe your item in detail. Include brand, model, features, condition, and reason for selling..."
                     />
                     <p className="mt-1 text-xs text-marketplace-text-secondary">
-                      Include all important details to help buyers make informed decisions
+                      Include all important details to help buyers make informed
+                      decisions
                     </p>
                   </div>
                 </div>
@@ -270,15 +309,22 @@ const AddItem = () => {
                 <div className="flex items-center mb-4">
                   <Tag className="text-marketplace-primary mr-3" size={24} />
                   <div>
-                    <h3 className="text-lg font-bold text-marketplace-text-primary">Category & Condition</h3>
-                    <p className="text-sm text-marketplace-text-secondary">Help buyers find your item easily</p>
+                    <h3 className="text-lg font-bold text-marketplace-text-primary">
+                      Category & Condition
+                    </h3>
+                    <p className="text-sm text-marketplace-text-secondary">
+                      Help buyers find your item easily
+                    </p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Category */}
                   <div>
-                    <label htmlFor="category" className="block text-sm font-bold text-marketplace-text-primary mb-2">
+                    <label
+                      htmlFor="category"
+                      className="block text-sm font-bold text-marketplace-text-primary mb-2"
+                    >
                       Category *
                     </label>
                     <select
@@ -290,7 +336,7 @@ const AddItem = () => {
                       className="w-full px-4 py-3 border border-marketplace-border-medium rounded-marketplace-lg focus:ring-2 focus:ring-marketplace-primary focus:border-marketplace-primary bg-white dark:bg-marketplace-gray-800 text-marketplace-text-primary transition-colors"
                     >
                       <option value="">Select a category</option>
-                      {categories.map(category => (
+                      {categories.map((category) => (
                         <option key={category.value} value={category.value}>
                           {category.icon} {category.label}
                         </option>
@@ -300,7 +346,10 @@ const AddItem = () => {
 
                   {/* Condition */}
                   <div>
-                    <label htmlFor="condition" className="block text-sm font-bold text-marketplace-text-primary mb-2">
+                    <label
+                      htmlFor="condition"
+                      className="block text-sm font-bold text-marketplace-text-primary mb-2"
+                    >
                       Condition *
                     </label>
                     <select
@@ -312,7 +361,7 @@ const AddItem = () => {
                       className="w-full px-4 py-3 border border-marketplace-border-medium rounded-marketplace-lg focus:ring-2 focus:ring-marketplace-primary focus:border-marketplace-primary bg-white dark:bg-marketplace-gray-800 text-marketplace-text-primary transition-colors"
                     >
                       <option value="">Select condition</option>
-                      {conditions.map(condition => (
+                      {conditions.map((condition) => (
                         <option key={condition.value} value={condition.value}>
                           {condition.label} - {condition.description}
                         </option>
@@ -325,21 +374,33 @@ const AddItem = () => {
               {/* Price & Location */}
               <div>
                 <div className="flex items-center mb-4">
-                  <DollarSign className="text-marketplace-primary mr-3" size={24} />
+                  <DollarSign
+                    className="text-marketplace-primary mr-3"
+                    size={24}
+                  />
                   <div>
-                    <h3 className="text-lg font-bold text-marketplace-text-primary">Price & Location</h3>
-                    <p className="text-sm text-marketplace-text-secondary">Set your price and location</p>
+                    <h3 className="text-lg font-bold text-marketplace-text-primary">
+                      Price & Location
+                    </h3>
+                    <p className="text-sm text-marketplace-text-secondary">
+                      Set your price and location
+                    </p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Price */}
                   <div>
-                    <label htmlFor="value" className="block text-sm font-bold text-marketplace-text-primary mb-2">
+                    <label
+                      htmlFor="value"
+                      className="block text-sm font-bold text-marketplace-text-primary mb-2"
+                    >
                       Price (₹)
                     </label>
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-marketplace-text-secondary">₹</span>
+                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-marketplace-text-secondary">
+                        ₹
+                      </span>
                       <input
                         type="number"
                         name="value"
@@ -357,11 +418,17 @@ const AddItem = () => {
 
                   {/* Location */}
                   <div>
-                    <label htmlFor="location" className="block text-sm font-bold text-marketplace-text-primary mb-2">
+                    <label
+                      htmlFor="location"
+                      className="block text-sm font-bold text-marketplace-text-primary mb-2"
+                    >
                       Location
                     </label>
                     <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-marketplace-text-secondary" size={16} />
+                      <MapPin
+                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-marketplace-text-secondary"
+                        size={16}
+                      />
                       <input
                         type="text"
                         name="location"
@@ -382,15 +449,25 @@ const AddItem = () => {
               {/* Trade Preferences */}
               <div>
                 <div className="flex items-center mb-4">
-                  <Package className="text-marketplace-primary mr-3" size={24} />
+                  <Package
+                    className="text-marketplace-primary mr-3"
+                    size={24}
+                  />
                   <div>
-                    <h3 className="text-lg font-bold text-marketplace-text-primary">Trade Preferences</h3>
-                    <p className="text-sm text-marketplace-text-secondary">What would you like in exchange?</p>
+                    <h3 className="text-lg font-bold text-marketplace-text-primary">
+                      Trade Preferences
+                    </h3>
+                    <p className="text-sm text-marketplace-text-secondary">
+                      What would you like in exchange?
+                    </p>
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="interestedIn" className="block text-sm font-bold text-marketplace-text-primary mb-2">
+                  <label
+                    htmlFor="interestedIn"
+                    className="block text-sm font-bold text-marketplace-text-primary mb-2"
+                  >
                     What are you interested in trading for?
                   </label>
                   <textarea
@@ -403,7 +480,8 @@ const AddItem = () => {
                     placeholder="Gaming console, Camera equipment, Laptop, or open to interesting offers..."
                   />
                   <p className="mt-1 text-xs text-marketplace-text-secondary">
-                    Be specific about what you're looking for to get better trade offers
+                    Be specific about what you're looking for to get better
+                    trade offers
                   </p>
                 </div>
               </div>
@@ -412,7 +490,10 @@ const AddItem = () => {
               <div className="border-t border-marketplace-border-light pt-6">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
                   <div className="text-sm text-marketplace-text-secondary">
-                    <p>By posting, you agree to our Terms of Service and Privacy Policy</p>
+                    <p>
+                      By posting, you agree to our Terms of Service and Privacy
+                      Policy
+                    </p>
                   </div>
                   <button
                     type="submit"
@@ -446,24 +527,45 @@ const AddItem = () => {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div className="flex items-start space-x-3">
-              <Camera size={16} className="text-marketplace-primary mt-1 flex-shrink-0" />
+              <Camera
+                size={16}
+                className="text-marketplace-primary mt-1 flex-shrink-0"
+              />
               <div>
-                <h4 className="font-semibold text-marketplace-text-primary">Use Quality Photos</h4>
-                <p className="text-marketplace-text-secondary">Clear, well-lit photos get 5x more responses</p>
+                <h4 className="font-semibold text-marketplace-text-primary">
+                  Use Quality Photos
+                </h4>
+                <p className="text-marketplace-text-secondary">
+                  Clear, well-lit photos get 5x more responses
+                </p>
               </div>
             </div>
             <div className="flex items-start space-x-3">
-              <FileText size={16} className="text-marketplace-primary mt-1 flex-shrink-0" />
+              <FileText
+                size={16}
+                className="text-marketplace-primary mt-1 flex-shrink-0"
+              />
               <div>
-                <h4 className="font-semibold text-marketplace-text-primary">Detailed Description</h4>
-                <p className="text-marketplace-text-secondary">Include all relevant details and specifications</p>
+                <h4 className="font-semibold text-marketplace-text-primary">
+                  Detailed Description
+                </h4>
+                <p className="text-marketplace-text-secondary">
+                  Include all relevant details and specifications
+                </p>
               </div>
             </div>
             <div className="flex items-start space-x-3">
-              <DollarSign size={16} className="text-marketplace-primary mt-1 flex-shrink-0" />
+              <DollarSign
+                size={16}
+                className="text-marketplace-primary mt-1 flex-shrink-0"
+              />
               <div>
-                <h4 className="font-semibold text-marketplace-text-primary">Fair Pricing</h4>
-                <p className="text-marketplace-text-secondary">Research similar items for competitive pricing</p>
+                <h4 className="font-semibold text-marketplace-text-primary">
+                  Fair Pricing
+                </h4>
+                <p className="text-marketplace-text-secondary">
+                  Research similar items for competitive pricing
+                </p>
               </div>
             </div>
           </div>

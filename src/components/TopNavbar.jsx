@@ -69,13 +69,13 @@ const TopNavbar = ({ onMenuClick, isDarkMode, toggleDarkMode }) => {
               className="hidden lg:flex items-center space-x-3"
             >
               <div className="w-10 h-10 bg-marketplace-primary rounded-marketplace flex items-center justify-center shadow-marketplace">
-                <img 
-                  src="https://cdn-icons-png.flaticon.com/512/3135/3135706.png" 
-                  alt="BarterX Logo" 
+                <img
+                  src="https://cdn-icons-png.flaticon.com/512/3135/3135706.png"
+                  alt="BarterX Logo"
                   className="w-6 h-6"
                   onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'block';
+                    e.target.style.display = "none";
+                    e.target.nextSibling.style.display = "block";
                   }}
                 />
                 <ArrowRightLeft className="text-white hidden" size={20} />
@@ -96,13 +96,13 @@ const TopNavbar = ({ onMenuClick, isDarkMode, toggleDarkMode }) => {
               className="lg:hidden flex items-center space-x-2"
             >
               <div className="w-8 h-8 bg-marketplace-primary rounded-marketplace flex items-center justify-center shadow-marketplace">
-                <img 
-                  src="https://cdn-icons-png.flaticon.com/512/3135/3135706.png" 
-                  alt="BarterX Logo" 
+                <img
+                  src="https://cdn-icons-png.flaticon.com/512/3135/3135706.png"
+                  alt="BarterX Logo"
                   className="w-5 h-5"
                   onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'block';
+                    e.target.style.display = "none";
+                    e.target.nextSibling.style.display = "block";
                   }}
                 />
                 <ArrowRightLeft className="text-white hidden" size={16} />

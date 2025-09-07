@@ -1,16 +1,24 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowLeftRight, Mail, Lock, Eye, EyeOff, Chrome, ArrowLeft } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import {
+  ArrowLeftRight,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  Chrome,
+  ArrowLeft,
+} from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    email: "",
+    password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const { loginWithGoogle, loginWithEmail, resetPassword } = useAuth();
@@ -18,34 +26,34 @@ const Login = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleEmailLogin = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.email || !formData.password) {
-      setError('Please fill in all fields');
+      setError("Please fill in all fields");
       return;
     }
 
     try {
-      setError('');
+      setError("");
       setLoading(true);
       await loginWithEmail(formData.email, formData.password);
-      navigate('/dashboard');
+      navigate("/dashboard");
     } catch (error) {
-      if (error.code === 'auth/user-not-found') {
-        setError('No account found with this email address');
-      } else if (error.code === 'auth/wrong-password') {
-        setError('Incorrect password');
-      } else if (error.code === 'auth/invalid-email') {
-        setError('Invalid email address');
+      if (error.code === "auth/user-not-found") {
+        setError("No account found with this email address");
+      } else if (error.code === "auth/wrong-password") {
+        setError("Incorrect password");
+      } else if (error.code === "auth/invalid-email") {
+        setError("Invalid email address");
       } else {
-        setError('Failed to log in. Please check your credentials.');
+        setError("Failed to log in. Please check your credentials.");
       }
       console.error(error);
     } finally {
@@ -55,12 +63,12 @@ const Login = () => {
 
   const handleGoogleLogin = async () => {
     try {
-      setError('');
+      setError("");
       setLoading(true);
       await loginWithGoogle();
-      navigate('/dashboard');
+      navigate("/dashboard");
     } catch (error) {
-      setError('Failed to log in with Google');
+      setError("Failed to log in with Google");
       console.error(error);
     } finally {
       setLoading(false);
@@ -69,23 +77,23 @@ const Login = () => {
 
   const handlePasswordReset = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.email) {
-      setError('Please enter your email address');
+      setError("Please enter your email address");
       return;
     }
 
     try {
-      setError('');
+      setError("");
       setLoading(true);
       await resetPassword(formData.email);
-      alert('Password reset email sent! Check your inbox.');
+      alert("Password reset email sent! Check your inbox.");
       setShowForgotPassword(false);
     } catch (error) {
-      if (error.code === 'auth/user-not-found') {
-        setError('No account found with this email address');
+      if (error.code === "auth/user-not-found") {
+        setError("No account found with this email address");
       } else {
-        setError('Failed to send password reset email');
+        setError("Failed to send password reset email");
       }
     } finally {
       setLoading(false);
@@ -112,25 +120,27 @@ const Login = () => {
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
             className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-lg rounded-2xl mb-4"
           >
-            <img 
-              src="https://cdn-icons-png.flaticon.com/512/3135/3135706.png" 
-              alt="BarterX Logo" 
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/3135/3135706.png"
+              alt="BarterX Logo"
               className="w-8 h-8"
               onError={(e) => {
-                e.target.style.display = 'none';
-                e.target.nextSibling.style.display = 'block';
+                e.target.style.display = "none";
+                e.target.nextSibling.style.display = "block";
               }}
             />
             <ArrowLeftRight className="text-white hidden" size={32} />
           </motion.div>
           <h1 className="text-3xl font-bold text-white mb-2">
-            {showForgotPassword ? 'Reset Password' : 'Welcome to BarterX'}
+            {showForgotPassword ? "Reset Password" : "Welcome to BarterX"}
           </h1>
           <p className="text-blue-100">
-            {showForgotPassword ? 'Enter your email to reset password' : 'Sign in to start trading'}
+            {showForgotPassword
+              ? "Enter your email to reset password"
+              : "Sign in to start trading"}
           </p>
         </div>
 
@@ -163,7 +173,9 @@ const Login = () => {
                 className="w-full bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 mb-6"
               >
                 <Chrome size={18} />
-                <span>{loading ? 'Signing in...' : 'Continue with Google'}</span>
+                <span>
+                  {loading ? "Signing in..." : "Continue with Google"}
+                </span>
               </motion.button>
 
               {/* Divider */}
@@ -172,7 +184,9 @@ const Login = () => {
                   <div className="w-full border-t border-white/20"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-transparent text-gray-300">Or continue with email</span>
+                  <span className="px-2 bg-transparent text-gray-300">
+                    Or continue with email
+                  </span>
                 </div>
               </div>
 
@@ -184,7 +198,10 @@ const Login = () => {
                     Email Address
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                    <Mail
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                      size={18}
+                    />
                     <input
                       type="email"
                       name="email"
@@ -203,9 +220,12 @@ const Login = () => {
                     Password
                   </label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                    <Lock
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                      size={18}
+                    />
                     <input
-                      type={showPassword ? 'text' : 'password'}
+                      type={showPassword ? "text" : "password"}
                       name="password"
                       value={formData.password}
                       onChange={handleInputChange}
@@ -248,7 +268,7 @@ const Login = () => {
                       Signing In...
                     </div>
                   ) : (
-                    'Sign In'
+                    "Sign In"
                   )}
                 </motion.button>
               </form>
@@ -256,7 +276,7 @@ const Login = () => {
               {/* Register Link */}
               <div className="mt-8 text-center">
                 <p className="text-gray-300">
-                  Don't have an account?{' '}
+                  Don't have an account?{" "}
                   <Link
                     to="/register"
                     className="text-yellow-400 hover:text-yellow-300 font-medium transition-colors"
@@ -285,7 +305,10 @@ const Login = () => {
                   Email Address
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                  <Mail
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    size={18}
+                  />
                   <input
                     type="email"
                     name="email"
@@ -312,7 +335,7 @@ const Login = () => {
                     Sending...
                   </div>
                 ) : (
-                  'Send Reset Email'
+                  "Send Reset Email"
                 )}
               </motion.button>
             </form>

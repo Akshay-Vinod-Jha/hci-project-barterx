@@ -45,59 +45,97 @@ const ItemDetails = () => {
 
   const submitTradeRequest = async () => {
     try {
-      console.log('Sending trade request:', {
-        itemId: item.id,
-        fromUser: currentUser.uid,
-        toUser: item.userId,
-        message: tradeMessage
-      });
+      console.log('🚀 Starting trade request process...');
+      console.log('Current user:', currentUser);
+      console.log('Item details:', item);
+      console.log('Trade message:', tradeMessage);
+
+      if (!item || !item.id) {
+        throw new Error('Item data is missing');
+      }
+
+      if (!currentUser || !currentUser.uid) {
+        throw new Error('User authentication is missing');
+      }
+
+      if (currentUser.uid === item.userId) {
+        alert("You can't send a trade request for your own item!");
+        return;
+      }
+
+      console.log('✅ Initial validation passed');
 
       // Create the trade request
       const tradeData = {
         itemId: item.id,
         requesterUserId: currentUser.uid,
         ownerUserId: item.userId,
-        message: tradeMessage,
+        message: tradeMessage || 'No message provided',
         status: 'pending',
         participants: [currentUser.uid, item.userId],
         itemDetails: {
-          title: item.title,
-          imageUrl: item.imageUrl,
-          value: item.value
+          title: item.title || 'Unknown Item',
+          imageUrl: item.imageUrl || '',
+          value: item.value || 0
         },
         requesterDetails: {
-          email: currentUser.email,
-          displayName: currentUser.displayName || currentUser.email?.split('@')[0]
+          email: currentUser.email || '',
+          displayName: currentUser.displayName || currentUser.email?.split('@')[0] || 'Unknown User'
         }
       };
 
+      console.log('📦 Trade data prepared:', tradeData);
+
       // Create the trade
+      console.log('💾 Creating trade in Firestore...');
       const tradeRef = await firebaseService.createTrade(tradeData);
-      console.log('Trade created with ID:', tradeRef.id);
+      console.log('✅ Trade created successfully with ID:', tradeRef.id);
 
       // Create notification for the item owner
+      console.log('🔔 Creating notification for item owner...');
+      const notificationData = {
+        itemTitle: item.title || 'Unknown Item',
+        tradeId: tradeRef.id,
+        itemId: item.id,
+        fromUserId: currentUser.uid,
+        fromUserName: currentUser.displayName || currentUser.email?.split('@')[0] || 'Unknown User',
+        message: tradeMessage || 'No message provided'
+      };
+      
+      console.log('📝 Notification data:', notificationData);
+      
       await firebaseService.createTradeNotification(
         item.userId, // Send notification to item owner
         'trade_request',
-        {
-          itemTitle: item.title,
-          tradeId: tradeRef.id,
-          itemId: item.id,
-          fromUserId: currentUser.uid,
-          fromUserName: currentUser.displayName || currentUser.email?.split('@')[0],
-          message: tradeMessage
-        }
+        notificationData
       );
 
-      console.log('✅ Trade request and notification created successfully');
+      console.log('✅ Notification created successfully');
+      console.log('🎉 Trade request process completed successfully');
       
       setShowTradeModal(false);
       setTradeMessage('');
       alert('Trade request sent successfully! The owner will be notified.');
       
     } catch (error) {
-      console.error('❌ Error sending trade request:', error);
-      alert('Error sending trade request. Please try again.');
+      console.error('❌ Detailed error in trade request:', error);
+      console.error('Error name:', error.name);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+      
+      let userMessage = 'Failed to send trade request. ';
+      
+      if (error.message.includes('permission')) {
+        userMessage += 'Permission denied. Please check your login status.';
+      } else if (error.message.includes('network')) {
+        userMessage += 'Network error. Please check your internet connection.';
+      } else if (error.message.includes('auth')) {
+        userMessage += 'Authentication error. Please log in again.';
+      } else {
+        userMessage += `Error: ${error.message}`;
+      }
+      
+      alert(userMessage);
     }
   };
 

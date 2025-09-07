@@ -188,16 +188,27 @@ export const deleteItem = async (itemId) => {
 // Trades collection operations
 export const createTrade = async (tradeData) => {
   try {
+    console.log('🔄 FirebaseService: Creating trade with data:', tradeData);
+    
+    if (!tradeData.itemId || !tradeData.requesterUserId || !tradeData.ownerUserId) {
+      throw new Error('Missing required trade data fields');
+    }
+    
     const tradesRef = collection(db, "trades");
+    console.log('📚 Trades collection reference created');
+    
     const docRef = await addDoc(tradesRef, {
       ...tradeData,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       status: "pending",
     });
+    
+    console.log('✅ Trade document created with ID:', docRef.id);
     return docRef;
   } catch (error) {
-    console.error("Error creating trade:", error);
+    console.error("❌ FirebaseService: Error creating trade:", error);
+    console.error("Error details:", error.name, error.message);
     throw error;
   }
 };
@@ -252,18 +263,27 @@ export const updateTrade = async (tradeId, tradeData) => {
 // Notifications collection operations - Using userId-based structure like items
 export const createNotification = async (notificationData) => {
   try {
-    console.log("📝 Creating notification:", notificationData);
+    console.log("📝 FirebaseService: Creating notification with data:", notificationData);
+    
+    if (!notificationData.userId) {
+      throw new Error('Missing required userId for notification');
+    }
+    
     const notificationsRef = collection(db, "notifications");
+    console.log('📚 Notifications collection reference created');
+    
     const docRef = await addDoc(notificationsRef, {
       ...notificationData,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       read: false,
     });
-    console.log("✅ Notification created with ID:", docRef.id);
+    
+    console.log("✅ Notification document created with ID:", docRef.id);
     return docRef;
   } catch (error) {
-    console.error("❌ Error creating notification:", error);
+    console.error("❌ FirebaseService: Error creating notification:", error);
+    console.error("Error details:", error.name, error.message);
     throw error;
   }
 };

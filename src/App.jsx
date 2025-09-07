@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import Navbar from './components/Navbar';
+import ModernLayout from './components/ModernLayout';
 
 // Import all pages
 import Login from './pages/Login';
@@ -25,13 +25,12 @@ const ProtectedRoute = ({ children }) => {
   return currentUser ? children : <Navigate to="/login" />;
 };
 
-// Layout for protected pages (with Navbar)
+// Layout for protected pages (with Modern Layout)
 const ProtectedLayout = ({ children }) => {
   return (
-    <>
-      <Navbar />
+    <ModernLayout>
       {children}
-    </>
+    </ModernLayout>
   );
 };
 
@@ -45,7 +44,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="App">
+        <div className="App min-h-screen">
           <Routes>
             {/* Public routes */}
             <Route 
